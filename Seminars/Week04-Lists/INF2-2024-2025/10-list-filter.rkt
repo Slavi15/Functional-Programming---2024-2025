@@ -1,5 +1,7 @@
 #lang racket
 
+(define (list-filter p? l) (foldr (lambda (x xs) (if (p? x) (cons x xs) xs)) `() l))
+
 (define (my-filter p? l)
   (define (iter lst list)
     (if (empty? list)
