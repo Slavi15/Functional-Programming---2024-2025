@@ -331,7 +331,7 @@ megaPair x (y : ys) = (x, y) : megaPair x ys
 
 map :: (a -> b) -> [a] -> [b]
 map _ [] = []
-map f (x : xs) = f x : map f xs
+map f (x : xs) = (f x) : map f xs
 
 -- EXERCISE
 -- Check if all the elements in a list are True.
@@ -508,13 +508,13 @@ validateList (Just x : xs) = case validateList xs of
 -- Just [2,4,6]
 -- >>> traverseListMaybe (\x -> if even x then Just x else Nothing) [1,2,3]
 -- Nothing
--- >>> traverseListMaybe (5 `safeDiv`) [0,2]
+-- >>> traverseListMaybe (5 `safeDiv2`) [0,2]
 -- Nothing
--- >>> traverseListMaybe (8 `safeDiv`) [3,2]
+-- >>> traverseListMaybe (8 `safeDiv2`) [3,2]
 -- Just [2,4]
 
 traverseListMaybe :: (a -> Maybe b) -> [a] -> Maybe [b]
-traverseListMaybe = undefined
+traverseListMaybe f xs = validateList (map f xs)
 
 -- EXERCISE
 -- Convert a list of digits to a number.
@@ -531,11 +531,25 @@ traverseListMaybe = undefined
 -- 120
 -- >>> digitsToNumber [Zero,One,Two,Zero]
 -- 120
+
+digitToDecimal :: Digit -> Integer
+digitToDecimal Zero = 0
+digitToDecimal One = 1
+digitToDecimal Two = 2
+digitToDecimal Three = 3
+digitToDecimal Four = 4
+digitToDecimal Five = 5
+digitToDecimal Six = 6
+digitToDecimal Seven = 7
+digitToDecimal Eight = 8
+digitToDecimal Nine = 9
+
 digitsToNumber :: [Digit] -> Integer
-digitsToNumber = undefined
+digitsToNumber [] = 0
+digitsToNumber xs = go xs 0
   where
-    -- for some reason, we often call helpers in haskell "go", as in "go do the thing"
-    go = undefined
+    go [] acc = acc
+    go (x' : xs') acc = go xs' ((acc * 10) + digitToDecimal x')
 
 -- EXERCISE
 -- Combine the previous functions to parse a number.
@@ -552,8 +566,16 @@ digitsToNumber = undefined
 -- Nothing
 -- >>> parseNumber "133t"
 -- Nothing
+
+isDigit :: Char -> Bool
+isDigit ch
+  | ch >= '0' && ch <= '9' = True
+  | otherwise = False
+
 parseNumber :: String -> Maybe Integer
-parseNumber = undefined
+parseNumber str
+  | all isDigit str = Just (read str)
+  | otherwise = Nothing
 
 -- EXERCISE
 -- Notice how in parseNumber, in the Nothing case we returned Nothing,
@@ -566,8 +588,10 @@ parseNumber = undefined
 -- Just 6
 -- >>> maybeMap succ Nothing
 -- Nothing
+
 maybeMap :: (a -> b) -> Maybe a -> Maybe b
-maybeMap = undefined
+maybeMap _ Nothing = Nothing
+maybeMap f (Just x) = Just (f x)
 
 -- EXERCISE
 -- Another way to combine lists
@@ -580,8 +604,10 @@ maybeMap = undefined
 -- []
 -- >>> zip [1] [4,5,6]
 -- [(1,4)]
+
 zip :: [a] -> [b] -> [(a, b)]
-zip = undefined
+zip (x : xs) (y : ys) = (x, y) : zip xs ys
+zip _ _ = []
 
 -- EXERCISE
 -- And the generalised version of zip.
@@ -592,8 +618,10 @@ zip = undefined
 -- [5,7,9]
 -- >>> zipWith (:) [1,2,3] [[4],[5,7],[]]
 -- [[1,4],[2,5,7],[3]]
+
 zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-zipWith = undefined
+zipWith f (x : xs) (y : ys) = (f x y) : zipWith f xs ys
+zipWith _ _ _ = []
 
 -- EXERCISE
 -- Transpose a matrix. Assume all the inner lists have the same length.
@@ -607,8 +635,11 @@ zipWith = undefined
 -- [[1,2]]
 -- >>> transpose [[1,2,3],[4,5,6]]
 -- [[1,4],[2,5],[3,6]]
+
 transpose :: [[a]] -> [[a]]
-transpose = undefined
+transpose [] = []
+transpose ([] : _) = []
+transpose xss = zipWith (:) (map head xss) (transpose (map tail xss))
 
 -- EXERCISE
 -- Reverse a list, but in linear time (so if the input list has n elements, you should only be doing at most ~n operations, not n^2)
