@@ -639,7 +639,7 @@ zipWith _ _ _ = []
 transpose :: [[a]] -> [[a]]
 transpose [] = []
 transpose ([] : _) = []
-transpose xss = zipWith (:) (map head xss) (transpose (map tail xss))
+transpose xss = map head xss : (transpose (map tail xss))
 
 -- EXERCISE
 -- Reverse a list, but in linear time (so if the input list has n elements, you should only be doing at most ~n operations, not n^2)
