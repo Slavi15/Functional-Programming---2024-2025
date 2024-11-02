@@ -5,7 +5,7 @@
 (define mk make-tree)
 
 (define (make-leaf tr) (list tr '() '()))
-(define (leaf? tr) (and (not (null? tr)) (not (empty-t? (left-t tr))) (not (empty-t? (right-t tr))))))
+(define (leaf? tr) (and (not (empty-t? tr)) (empty-t? (left-t tr)) (empty-t? (right-t tr)))))
 
 (define (root tr) (car tr))
 (define (left-t tr) (cadr tr))
