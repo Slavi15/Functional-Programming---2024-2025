@@ -14,7 +14,7 @@
     (if (null? pts)
         min-dist
         (iter
-         (foldr (lambda (x y) (if (< x y) x y)) min-dist (map (lambda (z) (dist z curr)) pts))
+         (foldr (lambda (x y) (if (< x y) x y)) min-dist (map (lambda (pt) (dist pt curr)) pts))
          (car pts)
          (cdr pts)
          )
