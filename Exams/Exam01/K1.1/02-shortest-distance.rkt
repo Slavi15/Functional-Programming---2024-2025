@@ -9,6 +9,25 @@
          ))
   )
 
+(define (shortest-distance points)
+  (define (iter min-dist curr pts)
+    (if (null? pts)
+        min-dist
+        (iter
+         (foldr (lambda (x y) (if (< x y) x y)) min-dist (map (lambda (z) (dist z curr)) pts))
+         (car pts)
+         (cdr pts)
+         )
+        )
+    )
+  (iter (dist (car points) (cadr points)) (car points) (cdr points))
+  )
+
+(shortest-distance `((1 . 1) (2 . 2) (4 . 4)))
+
+;; ------------------------------------------------------------------------------
+
+#|
 (define (get-distances curr-point ps)
   (if (null? ps)
       `()
@@ -34,5 +53,6 @@
     )
   (iter (dist (car points) (cadr points)) (car points) (cdr points))
   )
+|#
 
-(shortest-distance `((1 . 1) (2 . 2) (4 . 4)))
+;; ------------------------------------------------------------------------------
