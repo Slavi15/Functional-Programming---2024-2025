@@ -18,7 +18,7 @@
       )
   )
 
-(define (min l) (foldr (lambda (x xs) (< x xs) x xs) (car l) (cdr l)))
+(define (min l) (foldr (lambda (x xs) (if (< x xs) x xs)) (car l) (cdr l)))
 
 (define (shortest-distance points)
   (define (iter min-dist curr-point ps)
