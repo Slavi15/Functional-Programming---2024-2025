@@ -1,0 +1,44 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           homework01
+version:        0.1.0.0
+build-type:     Simple
+extra-source-files:
+    README.md
+
+library
+  exposed-modules:
+      Matrix
+      TicTacToe
+  other-modules:
+      Paths_homework01
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Werror -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
+
+test-suite homework01-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Instances
+      MatrixSpec
+      TicTacToeSpec
+      Utils
+      Paths_homework01
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Werror -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , generic-random
+    , homework01
+    , hspec
+  default-language: Haskell2010
