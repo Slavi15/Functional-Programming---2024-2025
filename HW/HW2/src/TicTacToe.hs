@@ -15,22 +15,42 @@ data Result = Full | HasEmpty | Wins Marker
 infixr 2 `join`
 
 join :: Result -> Result -> Result
-join = error "not implemented"
+join Full Full = Full
+join (Wins X) _ = Wins X
+join _ (Wins X) = Wins X
+join (Wins O) _ = Wins O
+join _ (Wins O) = Wins O
+join HasEmpty _ = HasEmpty
+join _ HasEmpty = HasEmpty
 
 checkThreeSpots :: Thrice Spot -> Result
-checkThreeSpots = error "not implemented"
+checkThreeSpots f =
+  let spots = [f Zero, f One, f Two]
+  in case () of
+    _ | all (== Just X) spots -> Wins X
+    _ | all (== Just O) spots -> Wins O
+    _ | any (== Nothing) spots -> HasEmpty
+    _ -> Full
 
 winnerRows :: Board -> Result
-winnerRows = error "not implemented"
+winnerRows board =
+  let rows = [checkThreeSpots (getRow i board) | i <- [Zero, One, Two]]
+  in foldl join HasEmpty rows
 
 winnerCols :: Board -> Result
-winnerCols = error "not implemented"
+winnerCols board =
+  let cols = [checkThreeSpots (getCol i board) | i <- [Zero, One, Two]]
+  in foldl join HasEmpty cols
 
 winnerDiags :: Board -> Result
-winnerDiags = error "not implemented"
+winnerDiags board =
+  let diags = [checkThreeSpots (getDiag board), checkThreeSpots (getOtherDiag board)]
+  in foldl join HasEmpty diags
 
 winner :: Board -> Result
-winner = error "not implemented"
+winner board = 
+  (winnerRows board) `join` (winnerCols board) `join` (winnerDiags board)
 
 emptySpots :: Board -> [(Three, Three)]
-emptySpots = error "not implemented"
+emptySpots (MkMatrix board) =
+  [ (i, j) | i <- [Zero, One, Two], j <- [Zero, One, Two], (board i j) == Nothing ]
