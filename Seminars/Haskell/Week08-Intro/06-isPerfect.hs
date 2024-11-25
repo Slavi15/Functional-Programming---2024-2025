@@ -6,3 +6,6 @@ isPerfect n = isPerfect' (n - 1) 0
         isPerfect' x sum
             | n `mod` x == 0 = isPerfect' (x - 1) (sum + x)
             | otherwise = isPerfect' (x - 1) sum
+
+isPerfect'' :: Int -> Bool
+isPerfect'' n = sum [x | x <- [1 .. (n - 1)], n `mod` x == 0] == n
