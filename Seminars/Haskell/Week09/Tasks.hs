@@ -105,9 +105,20 @@ fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
 (!=) :: (Eq a) => a -> a -> Bool
 x != y = x /= y
 
-sieve :: (Integral a) => [a] -> [a]
-sieve [] = []
-sieve (x : xs) = x : sieve [y | y <- xs, y `mod` x /= 0]
+-- sieve :: (Integral a) => [a] -> [a]
+-- sieve [] = []
+-- sieve (x : xs) = x : sieve [y | y <- xs, y `mod` x /= 0]
+
+-- primes :: (Integral a) => [a]
+-- primes = sieve [2 ..]
+
+isqrt :: (Integral a) => a -> a
+isqrt = floor . sqrt . fromIntegral
+
+isPrime :: (Integral a) => a -> Bool
+isPrime k
+    | k > 1 = null [x | x <- [2 .. (isqrt k)], k `mod` x == 0]
+    | otherwise = False
 
 primes :: (Integral a) => [a]
-primes = sieve [2 ..]
+primes = [x | x <- [2 ..], isPrime x]
