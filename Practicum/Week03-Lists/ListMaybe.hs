@@ -15,7 +15,7 @@
 
 module ListMaybe where
 
-import Prelude hiding (all, and, concat, drop, filter, length, map, null, product, replicate, reverse, subtract, sum, take, zip, zipWith, (++))
+import Prelude hiding (all, and, concat, drop, filter, length, map, product, replicate, reverse, subtract, sum, take, zip, zipWith, (++))
 
 -- TODO:
 -- ask about problems with homework (see README, remind about formatter, etc)
@@ -63,6 +63,8 @@ import Prelude hiding (all, and, concat, drop, filter, length, map, null, produc
 sumList :: [Integer] -> Integer
 sumList [] = 0
 sumList (x : xs) = x + sumList xs
+
+-- sumList xs = sum [x | x <- xs]
 
 -- >>> sumList [1, 2, 3]
 -- 6
@@ -114,9 +116,11 @@ safeHead' [] = []
 -- []
 
 listFromRange :: Integer -> Integer -> [Integer]
-listFromRange x y
-  | x > y = []
-  | otherwise = x : listFromRange (x + 1) y
+listFromRange x y = [z | z <- [x .. y]]
+
+-- listFromRange x y
+--   | x > y = []
+--   | otherwise = x : listFromRange (x + 1) y
 
 -- EXERCISE
 -- Multiply all the elements of a list
@@ -126,16 +130,18 @@ listFromRange x y
 -- >>> product []
 -- 1
 
-product :: [Integer] -> Integer
-product [] = 1
-product (x : xs) = x * product xs
+product' :: [Integer] -> Integer
+product' [] = 1
+product' (x : xs) = x * product' xs
+
+-- product' xs = product [x | x <- xs]
 
 -- EXERCISE
 -- Implement factorial with prod and listFromRange
 
 fact :: Integer -> Integer
 fact n = let list = listFromRange 1 n
-          in product list
+          in product' list
 
 -- EXERCISE
 -- Return a list of the numbers that divide the given number.
@@ -151,8 +157,14 @@ divisors :: Integer -> [Integer]
 divisors n = [ x | x <- [1 .. n], n `mod` x == 0 ]
 
 countDivisors :: [Integer] -> Integer
-countDivisors [] = 0
-countDivisors (_x : xs) = 1 + countDivisors xs
+countDivisors xs = countDivisors' xs 0
+  where
+    countDivisors' :: [Integer] -> Integer -> Integer
+    countDivisors' [] acc = acc
+    countDivisors' (_ : xs') acc = countDivisors' xs' (acc + 1)
+
+-- countDivisors [] = 0
+-- countDivisors (_x : xs) = 1 + countDivisors xs
 
 -- EXERCISE
 -- Implement prime number checking using listFromRange and divisors
@@ -162,13 +174,16 @@ countDivisors (_x : xs) = 1 + countDivisors xs
 -- >>> isPrime 8
 -- False
 
-isPrime :: Integer -> Bool
--- isPrime n
---   | n > 1 = null [x | x <- [2 .. floor (sqrt (fromIntegral n))], n `mod` x == 0]
---   | otherwise = False
+isqrt :: Integer -> Integer
+isqrt = floor . sqrt . fromIntegral
 
-isPrime n = let divisorList = divisors n
-  in countDivisors divisorList == 2
+isPrime :: Integer -> Bool
+isPrime n
+  | n > 1 = null [x | x <- [2 .. (isqrt n)], n `mod` x == 0]
+  | otherwise = False
+
+-- isPrime n = let divisorList = divisors n
+--   in countDivisors divisorList == 2
 
 isEmpty :: [a] -> Bool
 isEmpty [] = True
@@ -181,6 +196,7 @@ isEmpty _ = False
 -- Nothing
 -- >>> lastMaybe [1,2,3]
 -- Just 3
+
 lastMaybe :: [a] -> Maybe a
 lastMaybe [] = Nothing
 lastMaybe (x : xs)
@@ -258,8 +274,7 @@ take n (x : xs) = x : take (n - 1) xs
 -- [4,5,6]
 
 append :: [a] -> [a] -> [a]
-append [] [] = []
-append [] (y : ys) = y : append [] ys
+append [] ys = ys
 append (x : xs) ys = x : append xs ys
 
 -- append xs ys = xs ++ ys
@@ -287,10 +302,13 @@ concat (xs : xss) = xs `append` concat xss
 -- []
 
 reverse :: [a] -> [a]
-reverse xs = go xs []
+reverse xs = reverse' xs []
   where
-    go [] acc = acc
-    go (y : ys) acc = go ys (y : acc)
+    reverse' :: [a] -> [a] -> [a]
+    reverse' [] acc = acc
+    reverse' (y : ys) acc = reverse' ys (y : acc)
+
+-- reverse xs = foldl (flip (:)) [] xs
 
 -- reverse [] = []
 -- reverse (x : xs) = reverse xs ++ [x]
@@ -306,7 +324,7 @@ sq x = x * x
 
 squareList :: [Integer] -> [Integer]
 squareList [] = []
-squareList (x : xs) = sq x : squareList xs
+squareList (x : xs) = (sq x) : squareList xs
 
 -- EXERCISE
 -- Pair up the given element with each of the elements a list.
@@ -330,8 +348,12 @@ megaPair x (y : ys) = (x, y) : megaPair x ys
 -- [(3,1),(3,2),(3,3)]
 
 map :: (a -> b) -> [a] -> [b]
-map _ [] = []
-map f (x : xs) = (f x) : map f xs
+map f xs = foldr (\x acc -> (f x) : acc) [] xs
+
+-- map f xs = [f x | x <- xs]
+
+-- map _ [] = []
+-- map f (x : xs) = (f x) : map f xs
 
 -- EXERCISE
 -- Check if all the elements in a list are True.
@@ -344,8 +366,10 @@ map f (x : xs) = (f x) : map f xs
 -- True
 
 and :: [Bool] -> Bool
-and [] = True
-and (x : xs) = x && and xs
+and xs = foldr (&&) True xs
+
+-- and [] = True
+-- and (x : xs) = x && and xs
 
 -- EXERCISE
 -- Check if all the elements of a list satisfy a predicate
@@ -360,6 +384,8 @@ all :: (a -> Bool) -> [a] -> Bool
 all _ [] = True
 all f (x : xs) = f x && all f xs
 
+-- all f xs = length [x | x <- xs, f $ x] == length xs
+
 -- EXERCISE
 -- Implement the cartesian product of two lists.
 -- Don't use a list comprehension!
@@ -373,6 +399,8 @@ all f (x : xs) = f x && all f xs
 cartesian :: [a] -> [b] -> [(a, b)]
 cartesian [] _ = []
 cartesian (x : xs) ys = (x `megaPair` ys) `append` cartesian xs ys
+
+-- cartesian xs ys = [(x, y) | x <- xs, y <- ys]
 
 -- EXERCISE
 -- We can generalise cartesian to work with arbitrary functions instead of just (,),
@@ -392,6 +420,8 @@ lift2List :: (a -> b -> c) -> [a] -> [b] -> [c]
 lift2List _ [] _ = []
 lift2List f (x : xs) ys = (map (f x) ys) `append` lift2List f xs ys
 
+-- lift2List f xs ys = [(f x y) | x <- xs, y <- ys]
+
 -- EXERCISE
 -- The "filtering" part of a list comprehension - leave only those elements, that satisfy the given predicate.
 -- EXAMPLES
@@ -405,10 +435,12 @@ lift2List f (x : xs) ys = (map (f x) ys) `append` lift2List f xs ys
 -- [2,3,5,7,11,13,17,19]
 
 filter :: (a -> Bool) -> [a] -> [a]
-filter _ [] = []
-filter f (x : xs)
-  | f x = x : filter f xs
-  | otherwise = filter f xs
+filter p xs = [x | x <- xs, p $ x]
+
+-- filter _ [] = []
+-- filter f (x : xs)
+--   | f x = x : filter f xs
+--   | otherwise = filter f xs
 
 data Digit
   = Zero
@@ -488,11 +520,17 @@ parseDigit _ = Nothing
 -- Nothing
 
 validateList :: [Maybe a] -> Maybe [a]
-validateList [] = Just []
-validateList (Nothing : _) = Nothing
-validateList (Just x : xs) = case validateList xs of
-  Nothing -> Nothing
-  Just xs' -> Just (x : xs')
+validateList xs = foldr step (Just []) xs
+  where
+    step (Just x) (Just acc) = Just (x : acc)
+    step Nothing _ = Nothing
+    step _ _ = Nothing
+
+-- validateList [] = Just []
+-- validateList (Nothing : _) = Nothing
+-- validateList (Just x : xs) = case validateList xs of
+--   Nothing -> Nothing
+--   Just xs' -> Just (x : xs')
 
 -- EXERCISE
 -- You often have a collection (list) of things, for each of which you want to
@@ -544,12 +582,17 @@ digitToDecimal Seven = 7
 digitToDecimal Eight = 8
 digitToDecimal Nine = 9
 
+myConcat :: (Integral a) => a -> a -> a
+myConcat n digit = (n * 10) + digit
+
 digitsToNumber :: [Digit] -> Integer
-digitsToNumber [] = 0
-digitsToNumber xs = go xs 0
-  where
-    go [] acc = acc
-    go (x' : xs') acc = go xs' ((acc * 10) + digitToDecimal x')
+digitsToNumber xs = foldl (\acc x -> myConcat acc (digitToDecimal x)) 0 xs
+
+-- digitsToNumber [] = 0
+-- digitsToNumber xs = go xs 0
+--   where
+--     go [] acc = acc
+--     go (x' : xs') acc = go xs' ((acc * 10) + digitToDecimal x')
 
 -- EXERCISE
 -- Combine the previous functions to parse a number.
@@ -567,15 +610,12 @@ digitsToNumber xs = go xs 0
 -- >>> parseNumber "133t"
 -- Nothing
 
-isDigit :: Char -> Bool
-isDigit ch
-  | ch >= '0' && ch <= '9' = True
-  | otherwise = False
-
 parseNumber :: String -> Maybe Integer
-parseNumber str
-  | all isDigit str = Just (read str)
-  | otherwise = Nothing
+parseNumber str =
+  let parsedDigits = map parseDigit str
+  in case validateList parsedDigits of
+    Just digits -> Just (digitsToNumber digits)
+    Nothing -> Nothing
 
 -- EXERCISE
 -- Notice how in parseNumber, in the Nothing case we returned Nothing,
@@ -606,8 +646,9 @@ maybeMap f (Just x) = Just (f x)
 -- [(1,4)]
 
 zip :: [a] -> [b] -> [(a, b)]
+zip _ [] = []
+zip [] _ = []
 zip (x : xs) (y : ys) = (x, y) : zip xs ys
-zip _ _ = []
 
 -- EXERCISE
 -- And the generalised version of zip.
@@ -620,8 +661,9 @@ zip _ _ = []
 -- [[1,4],[2,5,7],[3]]
 
 zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith _ _ [] = []
+zipWith _ [] _ = []
 zipWith f (x : xs) (y : ys) = (f x y) : zipWith f xs ys
-zipWith _ _ _ = []
 
 -- EXERCISE
 -- Transpose a matrix. Assume all the inner lists have the same length.
@@ -645,9 +687,10 @@ transpose xss = map head xss : (transpose (map tail xss))
 -- Reverse a list, but in linear time (so if the input list has n elements, you should only be doing at most ~n operations, not n^2)
 -- You will need a helper local definition.
 -- EXAMPLES
--- >>> reverse [1,2,3]
+-- >>> reverseLinear [1,2,3]
 -- [3,2,1]
--- >>> reverse []
+-- >>> reverseLinear []
 -- []
+
 reverseLinear :: [a] -> [a]
-reverseLinear = undefined
+reverseLinear xs = foldl (flip (:)) [] xs
