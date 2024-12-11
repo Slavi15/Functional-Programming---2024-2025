@@ -1,10 +1,3 @@
-{-# OPTIONS_GHC -Werror #-}
-{-# OPTIONS_GHC -fwarn-incomplete-patterns #-}
-{-# OPTIONS_GHC -fwarn-incomplete-uni-patterns #-}
-{-# OPTIONS_GHC -fwarn-missing-signatures #-}
-{-# OPTIONS_GHC -fwarn-name-shadowing #-}
-{-# OPTIONS_GHC -fwarn-unused-matches #-}
-
 import Data.List (maximumBy)
 import Data.Ord (comparing)
 
