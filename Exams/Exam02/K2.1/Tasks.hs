@@ -1,5 +1,3 @@
--- Task 01
-
 isqrt :: Integer -> Integer
 isqrt = floor . sqrt . fromIntegral
 
@@ -47,8 +45,6 @@ allSuperPrime a b = [x | x <- [a .. b], isSuperPrime x]
 -- >>> allSuperPrime 1 10
 -- [2,3,5,7]
 
--- Task 02
-
 type Node = Int
 type Graph = [(Node, [Node])]
 
@@ -80,9 +76,6 @@ graph = [(1, [2, 3, 4]), (2, [1, 3]), (3, [1, 2, 4]), (4, [1, 3])]
 
 -- >>> extractNeighbors graph 1
 -- [2,4]
-
--- >>> filter (`notElem` [1]) [1,3]
--- [3]
 
 -- >>> removeNeighbors graph 1
 -- [(2,[1,3]),(3,[2,4]),(4,[1,3])]
